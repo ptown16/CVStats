@@ -1,0 +1,15 @@
+name: CVStats
+version: 1.18
+main: org.cubeville.cvstats.CVStats
+api-version: 1.18
+prefix: CVStats
+authors: [ Ptown16 ]
+description: A plugin used to log analytics for Cubeville
+website: cubeville.org
+
+commands:
+  cvstats:
+    description: Utilize the plugin
+    permission: cvstats.cvstats
+    permission-message: §3CVStats §f- You do not have permission to do that.
+    usage: /<command> <params>
