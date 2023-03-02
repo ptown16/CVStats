@@ -1,15 +1,18 @@
 package org.cubeville.cvstats.leaderboards;
 
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.SerializableAs;
 import org.cubeville.cvstats.CVStats;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@SerializableAs("LeaderboardManager")
 public class LeaderboardManager implements ConfigurationSerializable {
 
     Map<String, Leaderboard> leaderboards;
 
+    @SuppressWarnings("unchecked")
     public LeaderboardManager(Map<String, Object> config) {
         leaderboards = (Map<String, Leaderboard>) config.get("leaderboards");
     }

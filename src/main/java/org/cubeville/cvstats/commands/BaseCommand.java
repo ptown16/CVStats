@@ -11,16 +11,26 @@ import java.util.List;
 
 public abstract class BaseCommand {
     private String permission;
+    private String commandShape;
     protected Map<String, BaseCommand> subCommands;
 
     public BaseCommand() {}
 
-    public BaseCommand(String permission) {
+    public boolean runCommandIfPossible(CommandSender sender, String[] args) {
+        return runCommandIfPossible(sender, args, List.of());
+    }
+
+    protected void setHelpValue(String command, String description) {
+        commandShape = command;
+        CommandList.commands.put(command, description);
+    }
+
+    protected void setPermission(String permission) {
         this.permission = permission;
     }
 
-    public boolean runCommandIfPossible(CommandSender sender, String[] args) {
-        return runCommandIfPossible(sender, args, List.of());
+    protected boolean sendParamsError(CommandSender sender) {
+        return sendError(sender, commandShape);
     }
 
     public boolean runCommandIfPossible(CommandSender sender, String[] args, List<Object> passedArgs) {

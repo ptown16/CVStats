@@ -6,15 +6,16 @@ import org.cubeville.cvstats.leaderboards.LeaderboardManager;
 
 import java.util.List;
 
-public class RemoveLeaderboardCommand extends BaseCommand {
+public class LeaderboardRemove extends BaseCommand {
 
-    public RemoveLeaderboardCommand(String permission) {
-        super(permission);
+    public LeaderboardRemove() {
+        setPermission("cvstats.leaderboards.remove");
+        setHelpValue("/cvstats leaderboards delete <leaderboard>", "Delete a leaderboard");
     }
 
     @Override
     protected boolean runCommand(CommandSender sender, String[] args, List<Object> passedArgs) {
-        if (args.length != 1) return sendError(sender, CommandErrors.invalidParameterSize("/cvstats leaderboards delete <leaderboard>"));
+        if (args.length != 1) return sendParamsError(sender);
         String leaderboardName = args[0].toLowerCase();
         LeaderboardManager leaderboards = CVStats.getLeaderboards();
         // check if the leaderboard we are deleting exists
