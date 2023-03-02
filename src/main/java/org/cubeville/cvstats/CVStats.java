@@ -2,60 +2,82 @@ package org.cubeville.cvstats;
 
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.cubeville.cvstats.commands.CommandHandler;
 import org.cubeville.cvstats.database.StatsDB;
+import org.cubeville.cvstats.leaderboards.Display;
+import org.cubeville.cvstats.leaderboards.Leaderboard;
+import org.cubeville.cvstats.leaderboards.LeaderboardManager;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
 public final class CVStats extends JavaPlugin implements CommandExecutor {
 
+    private StatsDB db;
+
     public static CVStats instance;
-    public static StatsDB db;
+    public static LeaderboardManager leaderboardManager;
 
     @Override
     public void onEnable() {
         instance = this;
-        // Plugin startup logic
+
         saveDefaultConfig();
 
-        FileConfiguration config = getConfig();
-        String hostname = config.getString("mysql-hostname");
-        int port = config.getInt("mysql-port");
-        String database = config.getString("mysql-database");
-        String username = config.getString("mysql-username");
-        String password = config.getString("mysql-password");
-        if (hostname != null && port != 0 && database != null && username != null && password != null ) {
-            db = new StatsDB(hostname, port, database, username, password);
-            db.load();
-        } else {
-            getLogger().log(Level.SEVERE, "CVStats is not enabled -- please fill your config with the correct parameters for your MySQL database!");
-            return;
+        ConfigurationSerialization.registerClass(LeaderboardManager.class, "LeaderboardManager");
+        ConfigurationSerialization.registerClass(Leaderboard.class, "Leaderboard");
+        ConfigurationSerialization.registerClass(Display.class, "Display");
+
+
+        leaderboardManager = (LeaderboardManager) getConfig().get("LeaderboardManager");
+        if(leaderboardManager == null) leaderboardManager = new LeaderboardManager();
+
+        // database setup
+        db = new StatsDB("stats");
+        try {
+            db.createBackup();
         }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        db.load();
+
         this.getCommand("cvstats").setExecutor(new CommandHandler());
 
+    }
+
+    public void saveLeaderboardManager() {
+        getConfig().set("LeaderboardManager", leaderboardManager);
+        saveConfig();
     }
 
     @Override
     public void onDisable() {
         // Plugin shutdown logic
         if (db != null) {
-            db.closePool();
+            db.disconnect();
         }
     }
 
-    public void sendMetric(String metricName, Player player) {
-        sendMetric(metricName, player, Map.of());
+    public void sendMetric(String metricName) {
+        sendMetric(metricName, Map.of());
     }
 
-    public void sendMetric(String metricName, Player player, Map<String, String> fields) {
-        db.sendMetricEvent(metricName, player, fields);
+    public void sendMetric(String metricName, Map<String, String> fields) {
+        db.sendMetricEvent(metricName, fields);
     }
 
     public static CVStats getInstance() {
         return instance;
+    }
+
+    public static LeaderboardManager getLeaderboards() {
+        return leaderboardManager;
     }
 
 }

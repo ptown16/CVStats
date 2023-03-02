@@ -8,11 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class StatsDB extends MySQLDatabase {
+public class StatsDB extends SQLite {
 
 	public String SQLCreateMetricEventsTable = "CREATE TABLE IF NOT EXISTS metric_events (" +
 			"`metric_id` INTEGER PRIMARY KEY AUTO_INCREMENT, " +
-			"`player` varchar(36) NOT NULL, " +
 			"`metric_name` varchar(200) NOT NULL, " +
 			"`timestamp` BIGINT NOT NULL " +
 			");";
@@ -23,21 +22,19 @@ public class StatsDB extends MySQLDatabase {
 			"`field_value` varchar(200) NOT NULL" +
 			");";
 
-
-	public StatsDB(String hostname, int port, String database, String username, String password) {
-		super(hostname, port, database, username, password);
+	public StatsDB(String fileName) {
+		super(fileName);
 	}
 
 	public void load() {
-		setupPool();
 		update(SQLCreateMetricEventsTable);
 		update(SQLCreateMetricFieldsTable);
 	}
 
-	public void sendMetricEvent(String metric, Player player, Map<String, String> fields) {
+	public void sendMetricEvent(String metric, Map<String, String> fields) {
 		update(
-			"INSERT INTO `metric_events` (timestamp, player, metric_name)"
-					+ String.format("VALUES (%o, \"%s\", \"%s\"); ", System.currentTimeMillis(), player.getUniqueId(), metric)
+			"INSERT INTO `metric_events` (timestamp, metric_name)"
+					+ String.format("VALUES (%o, \"%s\", \"%s\"); ", System.currentTimeMillis(), metric)
 		);
 		StringBuilder query = new StringBuilder();
 		query.append("INSERT INTO `metric_fields` (metric_id, field_name, field_value) VALUES ");
@@ -49,3 +46,19 @@ public class StatsDB extends MySQLDatabase {
 		update(query.toString());
 	}
 }
+
+//SELECT
+//	filtered.location,
+//	COUNT(*) as `count`
+//	FROM (
+//	SELECT
+//	metric_events.metric_id,
+//	metric_events.metric_name,
+//	group_concat(distinct case when metric_fields.field_name = 'location' then metric_fields.field_value end) `location`
+//	FROM metric_events
+//	INNER JOIN metric_fields ON metric_events.metric_id=metric_fields.metric_id
+//	GROUP BY metric_events.metric_id
+//	HAVING metric_name = "hub_portal"
+//	) as filtered
+//	GROUP BY filtered.location
+//	ORDER BY `count` DESC
