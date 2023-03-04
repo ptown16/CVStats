@@ -5,7 +5,6 @@ import org.bukkit.command.CommandSender;
 
 import net.md_5.bungee.api.chat.TextComponent;
 
-import java.awt.*;
 import java.util.*;
 import java.util.List;
 
@@ -65,6 +64,7 @@ public abstract class BaseCommand {
 
         TextComponent messageTc = new TextComponent(org.bukkit.ChatColor.translateAlternateColorCodes('&', message));
         messageTc.setColor(ChatColor.of("#ff6b6b"));
+        errorTc.setBold(false);
 
         errorTc.addExtra(messageTc);
         sender.spigot().sendMessage(errorTc);
@@ -72,10 +72,7 @@ public abstract class BaseCommand {
     }
 
     protected boolean sendSuccess(CommandSender sender, String message) {
-        TextComponent messageTc = new TextComponent(org.bukkit.ChatColor.translateAlternateColorCodes('&', message));
-        messageTc.setColor(ChatColor.of("#6bff6d"));
-
-        sender.spigot().sendMessage(messageTc);
+        sender.sendMessage(org.bukkit.ChatColor.translateAlternateColorCodes('&', "&a" + message));
         return true;
     }
 

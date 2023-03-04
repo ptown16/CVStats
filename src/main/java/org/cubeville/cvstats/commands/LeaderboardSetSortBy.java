@@ -10,8 +10,8 @@ import java.util.List;
 public class LeaderboardSetSortBy extends BaseCommand {
 
     public LeaderboardSetSortBy() {
-        setPermission("cvstats.leaderboards.sortby");
-        setHelpValue("/cvstats leaderboards <leaderboard> sortby <count|ascending|descending>", "Set organization method for leaderboard");
+        setPermission("cvstats.leaderboards.value");
+        setHelpValue("/cvstats leaderboards <leaderboard> sortby <asc|desc>", "Set organization method for leaderboard");
     }
 
     @Override

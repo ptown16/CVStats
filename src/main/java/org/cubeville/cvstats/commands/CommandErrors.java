@@ -7,7 +7,8 @@ public class CommandErrors {
 
     public static final String DEFAULT_ERROR = "Invalid command, Enter \"/cvstats help\" to view all commands for this plugin.";
     public static final String NO_CONSOLE_SEND = "You cannot send this command from console!";
-    public static final String COLON_KEY_VALUE = "There must be exactly 1 colon when defining a key value pair";
+    public static final String COLON_KEY_VALUE = "There must be exactly 1 colon when defining a key value pair.";
+    public static final String GREATER_THAN_ZERO = "You must provide a number greater than 0!";
 
     public static String invalidParameterSize(String correctShape) {
         return "Invalid parameter size. Did you mean \"" + correctShape + "\" ?";
@@ -32,5 +33,9 @@ public class CommandErrors {
 
     public static String keyDoesNotExist(String leaderboardId, String key) {
         return "There is no filter with key " + key + " in leaderboard " + leaderboardId + ".";
+    }
+
+    public static String playerDoesNotExist(String player) {
+        return "Player key must be either a player UUID or an online player, instead got " + player + ".";
     }
 }

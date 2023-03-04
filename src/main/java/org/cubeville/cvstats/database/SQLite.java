@@ -1,5 +1,4 @@
 package org.cubeville.cvstats.database;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.cubeville.cvstats.CVStats;
 
 import java.io.File;
@@ -8,10 +7,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.sql.*;
+import java.util.List;
 
 public class SQLite {
 	private Connection connection;
-	private Statement statement;
 	String fileName;
 
 	public SQLite(String fileName) {
@@ -33,7 +32,6 @@ public class SQLite {
 			String url = "jdbc:sqlite:" + dbFile.getPath();
 
 			connection = DriverManager.getConnection(url);
-			statement = connection.createStatement();
 
 		} catch (IOException | SQLException exception) {
 			exception.printStackTrace();
@@ -52,7 +50,20 @@ public class SQLite {
 
 	public void update(String sql) {
 		try {
-			statement.execute(sql);
+			connection.createStatement().execute(sql);
+		} catch (SQLException exception) {
+			exception.printStackTrace();
+		}
+	}
+
+	public void batchUpdate(List<String> queries) {
+		try {
+			Statement batchStatement = connection.createStatement();
+			for (String query : queries) {
+				batchStatement.addBatch(query);
+			}
+			batchStatement.executeBatch();
+
 		} catch (SQLException exception) {
 			exception.printStackTrace();
 		}
@@ -60,7 +71,7 @@ public class SQLite {
 
 	public ResultSet getResult(String sql) {
 		try {
-			return statement.executeQuery(sql);
+			return connection.createStatement().executeQuery(sql);
 		} catch (SQLException exception) {
 			exception.printStackTrace();
 		}
