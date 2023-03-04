@@ -237,7 +237,9 @@ public class Leaderboard implements ConfigurationSerializable {
 
     public void updateDisplayText() {
         List<String> result = new ArrayList<>();
-        String divider = "§f§l-------------";
+        List<String> contents = getLeaderboardLines();
+        if (contents.size() == 0) contents.add("§e§lLeaderboard is empty");
+        String divider = "§f§l---------------";
         result.add(this.titleString);
         result.add(divider);
         result.addAll(getLeaderboardLines());

@@ -31,7 +31,7 @@ public class LeaderboardDisplaysAdd extends BaseCommand {
         leaderboard.addDisplay(player.getLocation());
         CVStats.getInstance().saveLeaderboardManager();
         leaderboard.reload();
-        return sendSuccess(sender, "Set key of leaderboard " + leaderboard.id + " to be " + leaderboard.key + "!");
+        return sendSuccess(sender, "Added a display at your current position!");
     }
 
 }
