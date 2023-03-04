@@ -21,6 +21,7 @@ public class LeaderboardFiltersRemove extends BaseCommand {
         if (!leaderboard.hasFilter(key)) return sendError(sender, CommandErrors.keyDoesNotExist(leaderboard.id, key));
         leaderboard.removeFilter(key);
         CVStats.getInstance().saveLeaderboardManager();
+        leaderboard.reload();
         return sendSuccess(sender, "Removed filter " + args[0] + " from leaderboard " + leaderboard.id + "!");
     }
 

@@ -24,11 +24,6 @@ public class StatsDB extends SQLite {
 			"`field_value` varchar(200) NOT NULL" +
 			");";
 
-	public String SQLCreatePlayerNameTable = "CREATE TABLE IF NOT EXISTS player_names (" +
-		"`uuid` varchar(32) PRIMARY KEY NOT NULL," +
-		"`name` varchar(32) NOT NULL" +
-		");";
-
 	public StatsDB(String fileName) {
 		super(fileName);
 	}
@@ -37,7 +32,6 @@ public class StatsDB extends SQLite {
 		connect();
 		update(SQLCreateMetricEventsTable);
 		update(SQLCreateMetricFieldsTable);
-		update(SQLCreatePlayerNameTable);
 	}
 
 	public void sendMetricEvent(String metric, Map<String, String> fields) {
@@ -108,6 +102,7 @@ public class StatsDB extends SQLite {
 			"JOIN metric_fields AS keyTable\n" +
 			"ON metricTable.metric_id = keyTable.metric_id\n" +
 			"JOIN metric_fields AS valueTable\n" +
+			"ON keyTable.metric_id = valueTable.metric_id\n" +
 			String.format("WHERE metricTable.metric_name = '%s'\n", leaderboard.metric) +
 			String.format("AND keyTable.field_name = '%s'\n", leaderboard.key) +
 			String.format("AND valueTable.field_name = '%s'\n", leaderboard.value) +
@@ -116,6 +111,7 @@ public class StatsDB extends SQLite {
 			String.format("ORDER BY `value` %s\n", leaderboard.sortBy.name()) +
 			String.format("LIMIT %d;", leaderboard.size);
 
+		System.out.println(query);
 		return getResult(query);
 	}
 
@@ -132,21 +128,5 @@ public class StatsDB extends SQLite {
 			result.append(currentFilter);
 		}
 		return result.toString();
-	}
-
-	public void savePlayerName(Player player) {
-		update(String.format("REPLACE INTO `player_names` (uuid, name) VALUES (\"%s\", \"%s\");", player.getUniqueId(), player.getName()));
-	}
-
-	public String getPlayerNameFromUUID(String uuidString) {
-		ResultSet result = getResult(String.format("SELECT name FROM `player_names` WHERE uuid = \"%s\"", uuidString));
-		if (result == null) { return null; }
-		try {
-			result.first();
-			return result.getString("name");
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return null;
 	}
 }

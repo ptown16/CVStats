@@ -2,6 +2,7 @@ package org.cubeville.cvstats.leaderboards;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
@@ -18,26 +19,26 @@ import java.util.regex.Pattern;
 
 @SerializableAs("Leaderboard")
 public class Leaderboard implements ConfigurationSerializable {
-    public String id, metric, key, title;
+    public String id, metric, key, value, title;
     public LeaderboardSortBy sortBy;
-    public LeaderboardUpdateBy updateBy;
-    public Integer size;
-    public String value;
-    List<Location> displays;
-    Map<String, String> filters;
+    public Integer size, refreshRate;
+    private List<Location> displays;
+    private Map<String, String> filters;
 
-    List<String> displayText = List.of("§c§lLeaderboard is not set up");
+    private List<String> displayText = List.of("§c§lLeaderboard is not set up");
     TextComponent titleTextComponent;
     String titleString;
+    int leaderboardReloadTask = -1;
     private final Pattern HEX_PATTERN = Pattern.compile("&#([a-fA-F0-9]{6})");
+
 
     public Leaderboard(String id) {
         this.id = id;
         this.displays = new ArrayList<>();
         this.filters = new HashMap<>();
         this.value = "count";
+        this.refreshRate = 0;
         this.sortBy = LeaderboardSortBy.DESC;
-        this.updateBy = LeaderboardUpdateBy.MANUAL;
         setTitle("&#FFF200&lLeaderboard \"" + id + "\"");
     }
 
@@ -48,13 +49,13 @@ public class Leaderboard implements ConfigurationSerializable {
         this.key = (String) config.get("key");
         this.value = (String) config.get("value");
         this.size = (Integer) config.get("size");
+        this.refreshRate = (Integer) config.get("refreshrate");
         setTitle((String) config.get("title"));
         List<Location> displays = (List<Location>) config.get("displays");
         this.displays = displays == null ? new ArrayList<>() : displays;
         Map<String, String> filters = (Map<String, String>) config.get("filters");
         this.filters = filters == null ? new HashMap<>() : filters;
         this.sortBy = LeaderboardSortBy.valueOf((String) config.get("sortby"));
-        this.updateBy = LeaderboardUpdateBy.valueOf((String) config.get("updateby"));
         reload();
     }
 
@@ -66,8 +67,8 @@ public class Leaderboard implements ConfigurationSerializable {
             put("key", key);
             put("value", value);
             put("sortby", sortBy.name());
-            put("updateby", updateBy.name());
             put("size", size);
+            put("refreshrate", refreshRate);
             put("displays", displays);
             put("filters", filters);
             put("title", title);
@@ -142,7 +143,7 @@ public class Leaderboard implements ConfigurationSerializable {
             size != null &&
             displays != null &&
             value != null &&
-            updateBy != null &&
+            refreshRate != null &&
             displays.size() > 0;
     }
 
@@ -160,6 +161,18 @@ public class Leaderboard implements ConfigurationSerializable {
 
     public void reload() {
         if (!isValid()) { return; }
+        if (leaderboardReloadTask != -1) {
+            Bukkit.getScheduler().cancelTask(leaderboardReloadTask);
+            leaderboardReloadTask = -1;
+        }
+        if (this.refreshRate == 0) {
+            singleReload();
+        } else {
+            this.leaderboardReloadTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(CVStats.getInstance(), this::singleReload, 0, (this.refreshRate * 20));
+        }
+    }
+
+    private void singleReload() {
         updateDisplayText();
         display();
     }
@@ -203,6 +216,9 @@ public class Leaderboard implements ConfigurationSerializable {
             while (leaderboardResults.next()) {
                 String key = leaderboardResults.getString("key");
                 String value = leaderboardResults.getString("value");
+                if (this.key.equals("player")) {
+                    key = Bukkit.getOfflinePlayer(UUID.fromString(key)).getName();
+                }
                 leaderboardLines.add(
                     String.format(
                         createColorString(

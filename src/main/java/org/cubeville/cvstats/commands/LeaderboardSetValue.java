@@ -19,6 +19,7 @@ public class LeaderboardSetValue extends BaseCommand {
         Leaderboard leaderboard = (Leaderboard) passedArgs.get(0);
         leaderboard.value = args[0].toLowerCase();
         CVStats.getInstance().saveLeaderboardManager();
+        leaderboard.reload();
         return sendSuccess(sender, "Set value of leaderboard " + leaderboard.id + " to be " + leaderboard.value + "!");
     }
 

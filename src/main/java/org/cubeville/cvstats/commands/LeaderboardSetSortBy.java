@@ -21,6 +21,7 @@ public class LeaderboardSetSortBy extends BaseCommand {
         try {
             leaderboard.sortBy = LeaderboardSortBy.valueOf(args[0].toUpperCase());
             CVStats.getInstance().saveLeaderboardManager();
+            leaderboard.reload();
         } catch (IllegalArgumentException e) {
             return sendError(sender, CommandErrors.invalidSortValue(args[0]));
         }

@@ -22,6 +22,7 @@ public class LeaderboardFiltersAdd extends BaseCommand {
         Leaderboard leaderboard = (Leaderboard) passedArgs.get(0);
         leaderboard.addFilter(kvPair[0], kvPair[1]);
         CVStats.getInstance().saveLeaderboardManager();
+        leaderboard.reload();
         return sendSuccess(sender, "Filtered leaderboard " + leaderboard.id + " so that " + kvPair[0] + " is always " + kvPair[1] + "!");
     }
 

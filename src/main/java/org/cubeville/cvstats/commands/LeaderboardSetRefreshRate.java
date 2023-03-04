@@ -1,24 +1,22 @@
 package org.cubeville.cvstats.commands;
 
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.cubeville.cvstats.CVStats;
 import org.cubeville.cvstats.leaderboards.Leaderboard;
 
 import java.util.List;
 
-public class LeaderboardDisplaysRemove extends BaseCommand {
+public class LeaderboardSetRefreshRate extends BaseCommand {
 
-    public LeaderboardDisplaysRemove() {
-        setPermission("cvstats.leaderboards.displays.remove");
-        setHelpValue("/cvstats leaderboards <leaderboard> displays remove <index>", "Remove a display from a leaderboard");
+    public LeaderboardSetRefreshRate() {
+        setPermission("cvstats.leaderboards.setrefreshrate");
+        setHelpValue("/cvstats leaderboards <leaderboard> setrefreshrate <seconds>", "Set the refresh rate of the leaderboard");
     }
 
     @Override
     protected boolean runCommand(CommandSender sender, String[] args, List<Object> passedArgs) {
         if (args.length != 1) return sendParamsError(sender);
         Leaderboard leaderboard = (Leaderboard) passedArgs.get(0);
-        // check if index is valid
         int index;
         try {
             index = Integer.parseInt(args[0]);
@@ -26,15 +24,17 @@ public class LeaderboardDisplaysRemove extends BaseCommand {
             return sendError(sender, CommandErrors.invalidIntegerValue(args[0]));
         }
 
-        // check if index is in bounds (we are going from 1 -> size)
-        if (index > leaderboard.getDisplays().size() || index < 1) {
-            return sendError(sender, CommandErrors.integerOutOfBounds(index));
+        if (index < 0) {
+            return sendError(sender, CommandErrors.POSITIVE_NUMBER);
         }
 
-        leaderboard.removeDisplay(index - 1);
+        leaderboard.refreshRate = index;
         CVStats.getInstance().saveLeaderboardManager();
         leaderboard.reload();
-        return sendSuccess(sender, "Removed display for leaderboard " + leaderboard.id + " at index " + index + "!");
+        if (index == 0) {
+            return sendSuccess(sender, "Leaderboard " + leaderboard.id + " will now refresh only when manually reloaded.");
+        }
+        return sendSuccess(sender, "Leaderboard " + leaderboard.id + " will now refresh every " + leaderboard.refreshRate + " seconds.");
     }
 
 }

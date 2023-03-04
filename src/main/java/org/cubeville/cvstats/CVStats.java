@@ -44,8 +44,6 @@ public final class CVStats extends JavaPlugin implements CommandExecutor {
         leaderboardManager = (LeaderboardManager) getConfig().get("LeaderboardManager");
         if(leaderboardManager == null) leaderboardManager = new LeaderboardManager();
 
-        getServer().getPluginManager().registerEvents(new EventHandlers(), this);
-
         this.getCommand("cvstats").setExecutor(new CommandHandler());
 
     }
@@ -69,18 +67,6 @@ public final class CVStats extends JavaPlugin implements CommandExecutor {
 
     public void sendMetric(String metricName, Map<String, String> fields) {
         db.sendMetricEvent(metricName, fields);
-    }
-
-    public void savePlayerName(Player player) {
-        db.savePlayerName(player);
-    }
-
-    public String getPlayerNameFromUUID(UUID uuid) {
-        return getPlayerNameFromUUID(uuid.toString());
-    }
-
-    public String getPlayerNameFromUUID(String uuid) {
-        return db.getPlayerNameFromUUID(uuid);
     }
 
     public static StatsDB getDatabase() {

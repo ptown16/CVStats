@@ -24,6 +24,7 @@ public class LeaderboardSetTitle extends BaseCommand {
         }
         leaderboard.setTitle(title);
         CVStats.getInstance().saveLeaderboardManager();
+        leaderboard.reload();
         return sendSuccess(sender, "&aSet title of leaderboard " + leaderboard.id + " to be \"" + leaderboard.getTitleString() + "&a\" !");
     }
 

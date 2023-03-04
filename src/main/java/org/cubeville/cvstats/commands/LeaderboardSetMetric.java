@@ -19,6 +19,7 @@ public class LeaderboardSetMetric extends BaseCommand {
         Leaderboard leaderboard = (Leaderboard) passedArgs.get(0);
         leaderboard.metric = args[0].toLowerCase();
         CVStats.getInstance().saveLeaderboardManager();
+        leaderboard.reload();
         return sendSuccess(sender, "Set metric of leaderboard " + leaderboard.id + " to be " + leaderboard.metric + "!");
     }
 

@@ -30,6 +30,7 @@ public class LeaderboardSetSize extends BaseCommand {
 
         leaderboard.size = index;
         CVStats.getInstance().saveLeaderboardManager();
+        leaderboard.reload();
         return sendSuccess(sender, "Set size of leaderboard " + leaderboard.id + " to be " + leaderboard.size + "!");
     }
 
