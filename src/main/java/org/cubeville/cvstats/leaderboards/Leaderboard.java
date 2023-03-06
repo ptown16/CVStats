@@ -20,7 +20,8 @@ import java.util.regex.Pattern;
 @SerializableAs("Leaderboard")
 public class Leaderboard implements ConfigurationSerializable {
     public String id, metric, key, value, title;
-    public LeaderboardSortBy sortBy;
+    public LeaderboardSortBy sortBy = LeaderboardSortBy.DESC;
+    public LeaderboardValueFormat valueFormat = LeaderboardValueFormat.DEFAULT;
     public Integer size, refreshRate;
     private List<Location> displays;
     private Map<String, String> filters;
@@ -38,7 +39,6 @@ public class Leaderboard implements ConfigurationSerializable {
         this.filters = new HashMap<>();
         this.value = "count";
         this.refreshRate = 0;
-        this.sortBy = LeaderboardSortBy.DESC;
         setTitle("&#FFF200&lLeaderboard \"" + id + "\"");
     }
 
@@ -56,6 +56,8 @@ public class Leaderboard implements ConfigurationSerializable {
         Map<String, String> filters = (Map<String, String>) config.get("filters");
         this.filters = filters == null ? new HashMap<>() : filters;
         this.sortBy = LeaderboardSortBy.valueOf((String) config.get("sortby"));
+        // checking if exists for backwards compatability
+        if (config.containsKey("valueformat")) this.valueFormat = LeaderboardValueFormat.valueOf((String) config.get("valueformat"));
         reload();
     }
 
@@ -67,6 +69,7 @@ public class Leaderboard implements ConfigurationSerializable {
             put("key", key);
             put("value", value);
             put("sortby", sortBy.name());
+            put("valueformat", valueFormat.name());
             put("size", size);
             put("refreshrate", refreshRate);
             put("displays", displays);
@@ -207,6 +210,15 @@ public class Leaderboard implements ConfigurationSerializable {
         }
     }
 
+    private String formatValue(String value) {
+        if (this.valueFormat == LeaderboardValueFormat.TIME_MILLI) {
+            if (value.length() > 8) return "[NUMBER TOO LONG]";
+            int time = Integer.parseInt(value);
+            return String.format("%d:%02d.%03d", time / 60000, time / 1000 % 60, time % 1000);
+        }
+        return value;
+    }
+
     private List<String> getLeaderboardLines() {
         List<String> leaderboardLines = new ArrayList<>();
         try {
@@ -223,7 +235,7 @@ public class Leaderboard implements ConfigurationSerializable {
                     String.format(
                         createColorString(
                         "&#ff7700&l#%d &#ffc012%s&f: %s"
-                        ), i, key, value
+                        ), i, key, formatValue(value)
                     )
                 );
                 i++;
@@ -242,7 +254,7 @@ public class Leaderboard implements ConfigurationSerializable {
         String divider = "§f§l---------------";
         result.add(this.titleString);
         result.add(divider);
-        result.addAll(getLeaderboardLines());
+        result.addAll(contents);
         result.add(divider);
         this.displayText = result;
     }

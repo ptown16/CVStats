@@ -59,6 +59,7 @@ public final class CVStats extends JavaPlugin implements CommandExecutor {
         if (db != null) {
             db.disconnect();
         }
+        leaderboardManager.cleanupLeaderboards();
     }
 
     public void sendMetric(String metricName) {

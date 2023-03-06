@@ -41,6 +41,7 @@ public class LeaderboardEdit extends BaseCommand {
         result.addExtra(addBasicRow("size", leaderboard.size, "/cvstats leaderboards " + leaderboard.id + " setsize "));
         result.addExtra(addBasicRow("refreshRate", leaderboard.refreshRate,"/cvstats leaderboards " + leaderboard.id + " setrefreshrate "));
         result.addExtra(addBasicRow("sortBy", leaderboard.sortBy, "/cvstats leaderboards " + leaderboard.id + " sortby "));
+        result.addExtra(addBasicRow("valueFormat", leaderboard.valueFormat, "/cvstats leaderboards " + leaderboard.id + " setvalueformat "));
         result.addExtra(addDisplayList(leaderboard, sender));
         result.addExtra(addFilterList(leaderboard));
 

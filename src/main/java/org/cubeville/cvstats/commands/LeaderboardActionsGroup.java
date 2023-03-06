@@ -19,6 +19,7 @@ public class LeaderboardActionsGroup extends BaseCommand {
         addSubCommand("reload", new LeaderboardReload());
         addSubCommand("setvalue", new LeaderboardSetValue());
         addSubCommand("setrefreshrate", new LeaderboardSetRefreshRate());
+        addSubCommand("setvalueformat", new LeaderboardSetValueFormat());
     }
 
     @Override

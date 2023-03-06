@@ -29,7 +29,7 @@ public abstract class BaseCommand {
     }
 
     protected boolean sendParamsError(CommandSender sender) {
-        return sendError(sender, commandShape);
+        return sendError(sender, CommandErrors.invalidParameterSize(commandShape));
     }
 
     public boolean runCommandIfPossible(CommandSender sender, String[] args, List<Object> passedArgs) {

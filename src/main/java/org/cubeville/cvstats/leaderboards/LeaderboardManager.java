@@ -45,4 +45,8 @@ public class LeaderboardManager implements ConfigurationSerializable {
     public boolean hasLeaderboard(String leaderboardName) {
         return leaderboards.containsKey(leaderboardName);
     }
+
+    public void cleanupLeaderboards() {
+        leaderboards.values().forEach(Leaderboard::clear);
+    }
 }

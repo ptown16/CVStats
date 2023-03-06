@@ -3,6 +3,7 @@ package org.cubeville.cvstats.database;
 import org.bukkit.entity.Player;
 import org.cubeville.cvstats.leaderboards.Leaderboard;
 import org.cubeville.cvstats.leaderboards.LeaderboardSortBy;
+import org.cubeville.cvstats.leaderboards.LeaderboardValueFormat;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -91,7 +92,7 @@ public class StatsDB extends SQLite {
 	}
 
 	public ResultSet fetchValueLeaderboard(Leaderboard leaderboard) {
-		String valueSort = leaderboard.sortBy.equals(LeaderboardSortBy.ASC) ? "MIN(valueTable.field_value)" : "MAX(valueTable.field_value)";
+		String valueSort = getValueSort(leaderboard);
 		String query =
 			"SELECT\n" +
 			"    metricTable.metric_id,\n" +
@@ -111,8 +112,21 @@ public class StatsDB extends SQLite {
 			String.format("ORDER BY `value` %s\n", leaderboard.sortBy.name()) +
 			String.format("LIMIT %d;", leaderboard.size);
 
-		System.out.println(query);
 		return getResult(query);
+	}
+
+	private String getValueSort(Leaderboard leaderboard) {
+		String valueSort = "valueTable.field_value";
+		if (leaderboard.valueFormat.equals(LeaderboardValueFormat.NUMBER) || leaderboard.valueFormat.equals(LeaderboardValueFormat.TIME_MILLI)) {
+			valueSort = "CAST(" + valueSort + " AS int)";
+		}
+
+		if (leaderboard.sortBy.equals(LeaderboardSortBy.ASC)) {
+			valueSort = "MIN(" + valueSort + ")";
+		} else {
+			valueSort = "MAX(" + valueSort + ")";
+		}
+		return valueSort;
 	}
 
 	private String getFiltersString(Map<String, String> filters) {

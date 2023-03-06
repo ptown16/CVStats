@@ -2,6 +2,7 @@ package org.cubeville.cvstats.commands;
 
 import org.apache.commons.lang.StringUtils;
 import org.cubeville.cvstats.leaderboards.LeaderboardSortBy;
+import org.cubeville.cvstats.leaderboards.LeaderboardValueFormat;
 
 public class CommandErrors {
 
@@ -24,6 +25,12 @@ public class CommandErrors {
         String properValues = StringUtils.join(LeaderboardSortBy.values(), ", ");
         return sortValue + " is not a valid sorting method! Correct values are: &f" + properValues;
     }
+
+    public static String invalidValueFormat(String valueFormat) {
+        String properValues = StringUtils.join(LeaderboardValueFormat.values(), ", ");
+        return valueFormat + " is not a valid value format! Correct values are: &f" + properValues;
+    }
+
 
     public static String invalidIntegerValue(String index) {
         return index + " is not a valid integer value!";
