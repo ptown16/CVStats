@@ -5,13 +5,16 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.cubeville.cvstats.CVStats;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
-public class SendMetric extends BaseCommand {
+public class ClearMetric extends BaseCommand {
 
-    public SendMetric() {
-        setPermission("cvstats.send");
-        setHelpValue("/cvstats send <metric-name> [...name:value]", "Send a metric to the database");
+    public ClearMetric() {
+        setPermission("cvstats.clear");
+        setHelpValue("/cvstats clear <metric-name> [...name:value]", "Clear a metric from the database");
     }
 
     @Override
@@ -40,7 +43,8 @@ public class SendMetric extends BaseCommand {
                 }
             }
         }
-        CVStats.getInstance().sendMetric(metricName, fields);
+        CVStats.getInstance().clearMetric(metricName, fields);
+        sendSuccess(sender, "Cleared metric " + metricName + " with fields " + fields + "! NOTE: You'll need to do a manual leaderboard reload to see the changes reflected there.");
         return true;
     }
 }

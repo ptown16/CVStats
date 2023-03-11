@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.cubeville.cvstats.leaderboards.Leaderboard;
 
 import java.util.List;
+import java.util.Objects;
 
 public class LeaderboardEdit extends BaseCommand {
 
@@ -42,6 +43,9 @@ public class LeaderboardEdit extends BaseCommand {
         result.addExtra(addBasicRow("refreshRate", leaderboard.refreshRate,"/cvstats leaderboards " + leaderboard.id + " setrefreshrate "));
         result.addExtra(addBasicRow("sortBy", leaderboard.sortBy, "/cvstats leaderboards " + leaderboard.id + " sortby "));
         result.addExtra(addBasicRow("valueFormat", leaderboard.valueFormat, "/cvstats leaderboards " + leaderboard.id + " setvalueformat "));
+        result.addExtra(addColorRow("rankColor", leaderboard.rankColor, "/cvstats leaderboards " + leaderboard.id + " setrankcolor "));
+        result.addExtra(addColorRow("keyColor", leaderboard.keyColor, "/cvstats leaderboards " + leaderboard.id + " setkeycolor "));
+        result.addExtra(addColorRow("valueColor", leaderboard.valueColor, "/cvstats leaderboards " + leaderboard.id + " setvaluecolor "));
         result.addExtra(addDisplayList(leaderboard, sender));
         result.addExtra(addFilterList(leaderboard));
 
@@ -67,6 +71,24 @@ public class LeaderboardEdit extends BaseCommand {
         } else {
             result.addExtra(value + " ");
         }
+
+        TextComponent editIcon = createClickableIcon("✎", editCommand);
+        result.addExtra(editIcon);
+
+        return result;
+    }
+
+    private TextComponent addColorRow(String itemName, Object value, String editCommand) {
+        TextComponent result = new TextComponent("\n");
+
+        TextComponent itemComponent = new TextComponent(itemName);
+        itemComponent.setColor(value == null ? ChatColor.RED : ChatColor.GREEN);
+        result.addExtra(itemComponent);
+
+        result.addExtra(": ");
+        TextComponent valueTC = new TextComponent(Objects.requireNonNull(value).toString());
+        valueTC.setColor(ChatColor.of(value.toString()));
+        result.addExtra(valueTC);
 
         TextComponent editIcon = createClickableIcon("✎", editCommand);
         result.addExtra(editIcon);

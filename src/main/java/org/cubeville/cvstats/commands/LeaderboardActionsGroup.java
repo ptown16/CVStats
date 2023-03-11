@@ -20,6 +20,9 @@ public class LeaderboardActionsGroup extends BaseCommand {
         addSubCommand("setvalue", new LeaderboardSetValue());
         addSubCommand("setrefreshrate", new LeaderboardSetRefreshRate());
         addSubCommand("setvalueformat", new LeaderboardSetValueFormat());
+        addSubCommand("setrankcolor", new LeaderboardSetRankColor());
+        addSubCommand("setkeycolor", new LeaderboardSetKeyColor());
+        addSubCommand("setvaluecolor", new LeaderboardSetValueColor());
     }
 
     @Override

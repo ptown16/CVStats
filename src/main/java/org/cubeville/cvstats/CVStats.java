@@ -22,6 +22,10 @@ public final class CVStats extends JavaPlugin implements CommandExecutor {
     private static CVStats instance;
     public static LeaderboardManager leaderboardManager;
 
+    public static final Pattern HEX_PATTERN = Pattern.compile("#([a-fA-F0-9]{6})");
+    public static final Pattern CHAT_HEX_PATTERN = Pattern.compile("&#([a-fA-F0-9]{6})");
+
+
     @Override
     public void onEnable() {
         instance = this;
@@ -67,7 +71,28 @@ public final class CVStats extends JavaPlugin implements CommandExecutor {
     }
 
     public void sendMetric(String metricName, Map<String, String> fields) {
+        logMetricAction(metricName, fields, "Sent");
         db.sendMetricEvent(metricName, fields);
+    }
+
+    public void clearMetric(String metricName) {
+        clearMetric(metricName, Map.of());
+    }
+
+    public void clearMetric(String metricName, Map<String, String> fields) {
+        logMetricAction(metricName, fields, "Cleared");
+        db.clearMetricEvent(metricName, fields);
+    }
+
+    private void logMetricAction(String metricName, Map<String, String> fields, String metricVerb) {
+        if (!getConfig().getBoolean("enable_logging")) return;
+        StringBuilder metricMessage = new StringBuilder("[Metrics] " + metricVerb + " metric \"" + metricName + "\" with fields: [ ");
+        for (String fieldName : fields.keySet()) {
+            metricMessage.append(String.format("%s: %s,", fieldName, fields.get(fieldName)));
+            metricMessage.append(" ");
+        }
+        metricMessage.append("]");
+        getLogger().info(metricMessage.toString());
     }
 
     public static StatsDB getDatabase() {

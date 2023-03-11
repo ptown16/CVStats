@@ -47,4 +47,8 @@ public class CommandErrors {
     public static String playerDoesNotExist(String player) {
         return "Player key must be either a player UUID or an online player, instead got " + player + ".";
     }
+
+    public static String invalidColor(String color) {
+        return color + " is not a valid hex color value!";
+    }
 }

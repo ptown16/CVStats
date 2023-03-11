@@ -1,6 +1,4 @@
-# DATABASE CREDENTIALS -- YOU MUST FILL THESE IN FOR THE PLUGIN TO WORK
-mysql-hostname:
-mysql-port:
-mysql-database:
-mysql-username:
-mysql-password:
+# Should send metric events to console?
+enable_logging: true
+
+LeaderboardManager:

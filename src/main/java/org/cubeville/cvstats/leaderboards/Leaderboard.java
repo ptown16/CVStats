@@ -15,11 +15,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import static org.cubeville.cvstats.CVStats.CHAT_HEX_PATTERN;
 
 @SerializableAs("Leaderboard")
 public class Leaderboard implements ConfigurationSerializable {
-    public String id, metric, key, value, title;
+    public String id, metric, key, value, title, rankColor, keyColor, valueColor;
     public LeaderboardSortBy sortBy = LeaderboardSortBy.DESC;
     public LeaderboardValueFormat valueFormat = LeaderboardValueFormat.DEFAULT;
     public Integer size, refreshRate;
@@ -30,7 +31,10 @@ public class Leaderboard implements ConfigurationSerializable {
     TextComponent titleTextComponent;
     String titleString;
     int leaderboardReloadTask = -1;
-    private final Pattern HEX_PATTERN = Pattern.compile("&#([a-fA-F0-9]{6})");
+
+    private final String DEFAULT_RANK_COLOR = "#ff7700";
+    private final String DEFAULT_KEY_COLOR = "#ffc012";
+    private final String DEFAULT_VALUE_COLOR = "#ffffff";
 
 
     public Leaderboard(String id) {
@@ -39,6 +43,9 @@ public class Leaderboard implements ConfigurationSerializable {
         this.filters = new HashMap<>();
         this.value = "count";
         this.refreshRate = 0;
+        this.rankColor = DEFAULT_RANK_COLOR;
+        this.keyColor = DEFAULT_KEY_COLOR;
+        this.valueColor = DEFAULT_VALUE_COLOR;
         setTitle("&#FFF200&lLeaderboard \"" + id + "\"");
     }
 
@@ -56,8 +63,17 @@ public class Leaderboard implements ConfigurationSerializable {
         Map<String, String> filters = (Map<String, String>) config.get("filters");
         this.filters = filters == null ? new HashMap<>() : filters;
         this.sortBy = LeaderboardSortBy.valueOf((String) config.get("sortby"));
+        this.rankColor = config.containsKey("rankcolor") ? (String) config.get("rankcolor") : DEFAULT_RANK_COLOR;
+        this.keyColor = config.containsKey("keycolor") ?  (String) config.get("keycolor") : DEFAULT_KEY_COLOR;
+        this.valueColor = config.containsKey("valuecolor") ? (String) config.get("valuecolor") : DEFAULT_VALUE_COLOR;
         // checking if exists for backwards compatability
         if (config.containsKey("valueformat")) this.valueFormat = LeaderboardValueFormat.valueOf((String) config.get("valueformat"));
+
+        for (Location displayLocation : displays) {
+            if (!displayLocation.getChunk().isForceLoaded()) {
+                displayLocation.getChunk().setForceLoaded(true);
+            }
+        }
         reload();
     }
 
@@ -75,16 +91,23 @@ public class Leaderboard implements ConfigurationSerializable {
             put("displays", displays);
             put("filters", filters);
             put("title", title);
+            put("rankcolor", rankColor);
+            put("keycolor", keyColor);
+            put("valuecolor", valueColor);
         }};
     }
 
     public void addDisplay(Location location) {
         displays.add(location);
+        if (!location.getChunk().isForceLoaded()) {
+            location.getChunk().setForceLoaded(true);
+        }
         reload();
     }
 
     public void removeDisplay(int i) {
         clear();
+        displays.get(i).getChunk().setForceLoaded(false);
         displays.remove(i);
         reload();
     }
@@ -111,8 +134,8 @@ public class Leaderboard implements ConfigurationSerializable {
     }
 
     private TextComponent createColorTextComponent(String input) {
-        Matcher matcher = HEX_PATTERN.matcher(input);
-        String[] inBetweens = input.split(HEX_PATTERN.pattern());
+        Matcher matcher = CHAT_HEX_PATTERN.matcher(input);
+        String[] inBetweens = input.split(CHAT_HEX_PATTERN.pattern());
         TextComponent tc = new TextComponent(ChatColor.translateAlternateColorCodes('&', inBetweens[0]));
         int i = 1;
         while (matcher.find()) {
@@ -182,9 +205,6 @@ public class Leaderboard implements ConfigurationSerializable {
 
     public void display() {
         for (Location location : displays) {
-            if (!location.getChunk().isEntitiesLoaded() && !location.getChunk().isLoaded()) {
-                return;
-            }
             clear();
             Location loc = location.clone();
             for (String line : displayText) {
@@ -197,8 +217,8 @@ public class Leaderboard implements ConfigurationSerializable {
 
     public void clear() {
         for (Location location : displays) {
-            if (!location.getChunk().isEntitiesLoaded() && !location.getChunk().isLoaded()) {
-                return;
+            if (!location.getChunk().isLoaded()) {
+                location.getChunk().load();
             }
             List<Entity> nearbyEntities = (List<Entity>) Objects.requireNonNull(location.getWorld())
                 .getNearbyEntities(location, 2, 8, 2);
@@ -232,10 +252,10 @@ public class Leaderboard implements ConfigurationSerializable {
                     key = Bukkit.getOfflinePlayer(UUID.fromString(key)).getName();
                 }
                 leaderboardLines.add(
-                    String.format(
-                        createColorString(
-                        "&#ff7700&l#%d &#ffc012%s&f: %s"
-                        ), i, key, formatValue(value)
+                    createColorString(
+                        String.format(
+                            "&%s&l#%d &%s%s&%s: %s", this.rankColor, i, this.keyColor, key, this.valueColor, formatValue(value)
+                        )
                     )
                 );
                 i++;

@@ -48,6 +48,22 @@ public class StatsDB extends SQLite {
 		));
 	}
 
+	public void clearMetricEvent(String metric, Map<String, String> fields) {
+		batchUpdate(List.of(
+			"BEGIN TRANSACTION;",
+			deleteMetricEventQuery(metric, fields),
+			"DELETE FROM metric_fields WHERE metric_id NOT IN ( SELECT DISTINCT metric_id FROM metric_fields );",
+			"END TRANSACTION;"
+		));
+	}
+
+	private String deleteMetricEventQuery(String metric, Map<String, String> fields) {
+		return "DELETE FROM metric_events\n" +
+			String.format("WHERE metric_name = '%s'\n", metric) +
+			getFiltersString("metric_events", fields) +
+			";";
+	}
+
 	private String addMetricEventQuery(String metric) {
 		return "INSERT INTO `metric_events` (timestamp, metric_name) "
 			+ String.format("VALUES (%o, \"%s\");", System.currentTimeMillis(), metric);
@@ -83,7 +99,7 @@ public class StatsDB extends SQLite {
 			"ON fieldTable.metric_id = metricTable.metric_id\n" +
 			String.format("WHERE metricTable.metric_name = '%s'\n", leaderboard.metric) +
 			String.format("AND fieldTable.field_name = '%s'\n", leaderboard.key) +
-			getFiltersString(leaderboard.getFilters()) +
+			getFiltersString("metricTable", leaderboard.getFilters()) +
 			"GROUP BY `key`\n" +
 			String.format("ORDER BY `value` %s\n", leaderboard.sortBy.name()) +
 			String.format("LIMIT %d;", leaderboard.size);
@@ -107,7 +123,7 @@ public class StatsDB extends SQLite {
 			String.format("WHERE metricTable.metric_name = '%s'\n", leaderboard.metric) +
 			String.format("AND keyTable.field_name = '%s'\n", leaderboard.key) +
 			String.format("AND valueTable.field_name = '%s'\n", leaderboard.value) +
-			getFiltersString(leaderboard.getFilters()) +
+			getFiltersString("metricTable", leaderboard.getFilters()) +
 			"GROUP BY `key`\n" +
 			String.format("ORDER BY `value` %s\n", leaderboard.sortBy.name()) +
 			String.format("LIMIT %d;", leaderboard.size);
@@ -129,13 +145,13 @@ public class StatsDB extends SQLite {
 		return valueSort;
 	}
 
-	private String getFiltersString(Map<String, String> filters) {
+	private String getFiltersString(String tableName, Map<String, String> filters) {
 		StringBuilder result = new StringBuilder();
 		for (String key : filters.keySet()) {
 			String currentFilter = "" +
 				"AND EXISTS (\n" +
 				"    SELECT * FROM metric_fields as filters\n" +
-				"    WHERE filters.metric_id = metricTable.metric_id\n" +
+				String.format("    WHERE filters.metric_id = %s.metric_id\n", tableName) +
 				String.format("    AND filters.field_name = '%s'\n", key) +
 				String.format("    AND filters.field_value = '%s'\n", filters.get(key)) +
 				")\n";

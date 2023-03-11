@@ -11,6 +11,7 @@ public class CommandHandler implements CommandExecutor, TabExecutor {
 
     private final Map<String, BaseCommand> commandMap = new HashMap<>() {{
         put("send", new SendMetric());
+        put("clear", new ClearMetric());
         put("leaderboards", new LeaderboardGroup());
         put("help", new HelpCommand());
     }};
