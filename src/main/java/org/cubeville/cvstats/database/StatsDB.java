@@ -7,6 +7,7 @@ import org.cubeville.cvstats.leaderboards.LeaderboardValueFormat;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -66,7 +67,7 @@ public class StatsDB extends SQLite {
 
 	private String addMetricEventQuery(String metric) {
 		return "INSERT INTO `metric_events` (timestamp, metric_name) "
-			+ String.format("VALUES (%o, \"%s\");", System.currentTimeMillis(), metric);
+			+ String.format("VALUES (%d, \"%s\");", System.currentTimeMillis(), metric);
 	}
 
 	private String addMetricFieldsQuery(Map<String, String> fields) {
@@ -158,5 +159,26 @@ public class StatsDB extends SQLite {
 			result.append(currentFilter);
 		}
 		return result.toString();
+	}
+
+	public ResultSet getOctalTimestamps() {
+		String query = "SELECT \n" +
+			"    metric_id,\n" +
+			"    CAST(timestamp as int) AS timestamp\n" +
+			"FROM metric_events\n" +
+			"WHERE timestamp > 30006340000000;";
+
+		return getResult(query);
+	}
+
+	public void batchUpdateOctalTimestamps(Map<String, Long> updatedTimestamps) {
+		List<String> batchQuery = new ArrayList<>();
+		batchQuery.add("BEGIN TRANSACTION;");
+		for (String metricId : updatedTimestamps.keySet()) {
+			batchQuery.add(String.format("UPDATE metric_events SET timestamp = %d WHERE metric_id = %s;", updatedTimestamps.get(metricId), metricId));
+		}
+		batchQuery.add("END TRANSACTION;");
+		System.out.println(batchQuery);
+		batchUpdate(batchQuery);
 	}
 }

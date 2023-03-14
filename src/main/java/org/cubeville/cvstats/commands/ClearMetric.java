@@ -27,15 +27,10 @@ public class ClearMetric extends BaseCommand {
                 String[] kvPair = args[i].toLowerCase().split(":");
                 if (kvPair.length != 2) return sendError(sender, CommandErrors.COLON_KEY_VALUE);
                 if (kvPair[0].equals("player")) {
-                    try{
-                        // if the value of player is a uuid
-                        UUID uuid = UUID.fromString(kvPair[0]);
-                        fields.put("player", uuid.toString());
-                    } catch (IllegalArgumentException exception) {
-                        // handle the case where string is not a UUID
-                        // if the value of player is an online player, then get the uuid from that
-                        Player player = Bukkit.getPlayer(kvPair[1]);
-                        if (player == null) return sendError(sender, CommandErrors.playerDoesNotExist(kvPair[1]));
+                    Player player = Bukkit.getPlayer(kvPair[1]);
+                    if (player == null) {
+                        fields.put(kvPair[0], kvPair[1]);
+                    } else {
                         fields.put("player", player.getUniqueId().toString());
                     }
                 } else {

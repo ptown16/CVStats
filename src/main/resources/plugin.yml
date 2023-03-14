@@ -12,4 +12,4 @@ commands:
     description: Utilize the plugin
     permission: cvstats.cvstats
     permission-message: §3CVStats §f- You do not have permission to do that.
-    usage: /<command> <params>
+    usage: /<command> help

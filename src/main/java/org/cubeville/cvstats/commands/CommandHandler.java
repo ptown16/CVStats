@@ -14,6 +14,7 @@ public class CommandHandler implements CommandExecutor, TabExecutor {
         put("clear", new ClearMetric());
         put("leaderboards", new LeaderboardGroup());
         put("help", new HelpCommand());
+        put("timestampmigration", new TimestampMigration());
     }};
 
     // This method is called, when somebody uses our command
