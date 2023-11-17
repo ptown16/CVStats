@@ -250,6 +250,14 @@ public class Leaderboard implements ConfigurationSerializable {
                 String value = leaderboardResults.getString("value");
                 if (this.key.equals("player")) {
                     key = Bukkit.getOfflinePlayer(UUID.fromString(key)).getName();
+                } else if (this.key.equals("players")) {
+                    List<String> playerNames = new ArrayList<>();
+                    for (String player : key.split(",")) {
+                        playerNames.add(Bukkit.getOfflinePlayer(UUID.fromString(player)).getName());
+                    }
+                    StringJoiner joiner = new StringJoiner(", ");
+                    playerNames.forEach(joiner::add);
+                    key = joiner.toString();
                 }
                 leaderboardLines.add(
                     createColorString(
