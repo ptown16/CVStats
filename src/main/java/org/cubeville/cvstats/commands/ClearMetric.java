@@ -5,10 +5,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.cubeville.cvstats.CVStats;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class ClearMetric extends BaseCommand {
 
@@ -32,6 +29,25 @@ public class ClearMetric extends BaseCommand {
                         fields.put(kvPair[0], kvPair[1]);
                     } else {
                         fields.put("player", player.getUniqueId().toString());
+                    }
+                } else if (kvPair[0].equals("players")) {
+                    List<String> playerUUIDs = new ArrayList<>();
+                    Boolean invalidPlayer = false;
+                    for (String playerName :  kvPair[1].split(",")) {
+                        Player player = Bukkit.getPlayer(playerName);
+                        if (player == null) {
+                            fields.put(kvPair[0], kvPair[1]);
+                            invalidPlayer = true;
+                            break;
+                        }
+                        playerUUIDs.add(player.getUniqueId().toString());
+                    }
+                    if (!invalidPlayer) {
+                        playerUUIDs.sort(Comparator.comparing(o -> o));
+                        StringJoiner joiner = new StringJoiner(",");
+                        playerUUIDs.forEach(joiner::add);
+                        String uuids = joiner.toString();
+                        fields.put("players", uuids);
                     }
                 } else {
                     fields.put(kvPair[0], kvPair[1]);
